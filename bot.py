@@ -7,6 +7,10 @@ import json
 
 
 class TulingWXBot(WXBot):
+    
+    global person_user_id
+    group_id = ''
+    
     def __init__(self):
         WXBot.__init__(self)
 
@@ -20,6 +24,12 @@ class TulingWXBot(WXBot):
         except Exception:
             pass
         print 'tuling_key:', self.tuling_key
+        
+    def save_to_file(file_name, contents):
+        fh = open(file_name, 'w')
+        fh.write(contents)
+        fh.close()
+
 
     def tuling_auto_reply(self, uid, msg):
         if self.tuling_key:
@@ -49,26 +59,36 @@ class TulingWXBot(WXBot):
 
     def auto_switch(self, msg):
         msg_data = msg['content']['data']
-        stop_cmd = [u'退下', u'走开', u'关闭', u'关掉', u'休息', u'滚开']
-        start_cmd = [u'出来', u'启动', u'工作']
+        stop_cmd = [u'退下', u'走开', u'关闭', u'关掉', u'休息', u'滚开', u'儿子你该睡觉了']
+        start_cmd = [u'出来', u'启动', u'工作', u'儿子你在哪']
         if self.robot_switch:
             for i in stop_cmd:
                 if i == msg_data:
                     self.robot_switch = False
-                    self.send_msg_by_uid(u'[Robot]' + u'机器人已关闭！', msg['to_user_id'])
+                    self.send_msg_by_uid(u'[Robot]' + u'爸爸不要我了！[流泪]', msg['to_user_id'])
         else:
             for i in start_cmd:
                 if i == msg_data:
                     self.robot_switch = True
-                    self.send_msg_by_uid(u'[Robot]' + u'机器人已开启！', msg['to_user_id'])
+                    self.send_msg_by_uid(u'[Robot]' + u'爸爸我来啦，啦啦啦[转圈]！', msg['to_user_id'])
 
-    def handle_msg_all(self, msg):
+    def handle_msg_all(self, msg):      
         if not self.robot_switch and msg['msg_type_id'] != 1:
             return
         if msg['msg_type_id'] == 1 and msg['content']['type'] == 0:  # reply to self
             self.auto_switch(msg)
         elif msg['msg_type_id'] == 4 and msg['content']['type'] == 0:  # text message from contact
-            self.send_msg_by_uid(self.tuling_auto_reply(msg['user']['id'], msg['content']['data']), msg['user']['id'])
+            # 图灵
+            #self.send_msg_by_uid(self.tuling_auto_reply(msg['user']['id'], msg['content']['data']), msg['user']['id'])
+            global person_user_id 
+            person_user_id = msg['user']['id']
+            self.send_msg('小冰',msg['content']['data'],False)
+
+        elif msg['msg_type_id'] == 5 and msg['content']['type'] == 0:  # reply to
+            if self.get_user_id('小冰') == msg['user']['id']:
+                global person_user_id
+                self.send_msg_by_uid(msg['content']['data'], person_user_id)
+           
         elif msg['msg_type_id'] == 3 and msg['content']['type'] == 0:  # group text message
             if 'detail' in msg['content']:
                 my_names = self.get_group_member_name(msg['user']['id'], self.my_account['UserName'])
@@ -88,7 +108,7 @@ class TulingWXBot(WXBot):
                                 break
                 if is_at_me:
                     src_name = msg['content']['user']['name']
-                    reply = 'to ' + src_name + ': '
+                    reply = '@' + src_name + ': '
                     if msg['content']['type'] == 0:  # text message
                         reply += self.tuling_auto_reply(msg['content']['user']['id'], msg['content']['desc'])
                     else:
