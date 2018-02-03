@@ -216,7 +216,7 @@ python test.py
 
 ## 5 群聊机器人示例
 
-***bot.py*** 用 **[图灵机器人](http://www.tuling123.com/)** API 以及 **wxBot** 实现了一个自动回复机器人.
+***bot.py*** 用 **[微软小冰](http://www.msxiaoice.com/)** 的微信公众号 以及 **wxBot** 实现了一个自动回复机器人.
 
 此机器人会回复来自联系人的消息，以及群里@此账号的消息。
 
@@ -235,16 +235,22 @@ python test.py
 
 ***bot.py*** 的运行方法：
 
-- 要接入图灵机器人API时：
+- 要接入图灵机器人微软小冰时：
 
-  1. 在[图灵机器人官网](http://www.tuling123.com/)注册账号，申请图灵key: [图灵key申请地址](http://www.tuling123.com/html/doc/apikey.html)
+ 1.需要微信关注微软小冰
+ 2.群聊未切入到微软小冰，还是图灵的接口
 
-  2. 在 ***bot.py*** 文件所在目录下新建 ***conf.ini*** 文件，内容为:(key字段内容为申请到的图灵key)
+ 要接入图灵机器人API时：
 
-    ```txt
-    [main]    
-    key=1d2678900f734aa0a23734ace8aec5b1
-    ```
+在图灵机器人官网注册账号，申请图灵key: 图灵key申请地址
+
+在 bot.py 文件所在目录下新建 conf.ini 文件，内容为:(key字段内容为申请到的图灵key)
+
+[main]    
+key=1d2678900f734aa0a23734ace8aec5b1
+运行 bot.py
+python bot.py
+
 
   3. 运行 ***bot.py***
 
@@ -252,12 +258,6 @@ python test.py
     python bot.py
     ```
 
-- 不接入图灵机器人API时(此时机器人对联系人消息以及群里@自己的消息统一回复 *知道了* )：
-  1. 运行 ***bot.py***
-
-    ```python
-    python bot.py
-    ```
 
 ## 6 类似项目
 
