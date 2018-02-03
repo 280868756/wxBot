@@ -5,17 +5,17 @@ from wxbot import *
 import ConfigParser
 import json
 
-
 class TulingWXBot(WXBot):
-    
-    global person_user_id
-    group_id = ''
-    
+        
     def __init__(self):
         WXBot.__init__(self)
 
         self.tuling_key = ""
         self.robot_switch = True
+        self.temp_pwd  =  os.path.join(os.getcwd(),'temp')
+        self.person_user_id = "" # temp var for save contact
+        self.voicePath="" #temp voice path for 小冰
+
 
         try:
             cf = ConfigParser.ConfigParser()
@@ -77,17 +77,37 @@ class TulingWXBot(WXBot):
             return
         if msg['msg_type_id'] == 1 and msg['content']['type'] == 0:  # reply to self
             self.auto_switch(msg)
-        elif msg['msg_type_id'] == 4 and msg['content']['type'] == 0:  # text message from contact
+        elif msg['msg_type_id'] == 4:  # text message from contact
             # 图灵
             #self.send_msg_by_uid(self.tuling_auto_reply(msg['user']['id'], msg['content']['data']), msg['user']['id'])
-            global person_user_id 
-            person_user_id = msg['user']['id']
-            self.send_msg('小冰',msg['content']['data'],False)
+            self.person_user_id = msg['user']['id']
+            if msg['content']['type'] == 0:
+                self.send_msg('小冰',msg['content']['data'],False)
+            elif msg['content']['type'] == 6: #动图
+                self.get_msg_img(msg['msg_id'])	
+                image = os.path.join(self.temp_pwd,'img_'+msg['msg_id']+'.png')
+                aiApiUserId = self.get_user_id('小冰')
+                self.send_img_msg_by_uid(image, aiApiUserId)
 
-        elif msg['msg_type_id'] == 5 and msg['content']['type'] == 0:  # reply to
+            elif msg['content']['type'] in [4,7]: #语音
+                self.send_msg_by_uid('我还不会语音识别，请发文字吧', msg['user']['id'])
+            elif msg['content']['type'] == 3: #图片
+                #self.send_msg_by_uid('图片消息', msg['user']['id'])
+                image = os.path.join(self.temp_pwd,'img_'+msg['msg_id']+'.png')
+                aiApiUserId = self.get_user_id('小冰')
+                self.send_img_msg_by_uid(image, aiApiUserId)
+
+
+        elif msg['msg_type_id'] == 5:  # reply to 公众号
             if self.get_user_id('小冰') == msg['user']['id']:
-                global person_user_id
-                self.send_msg_by_uid(msg['content']['data'], person_user_id)
+                if  msg['content']['type'] == 0:
+                    self.send_msg_by_uid(msg['content']['data'], self.person_user_id)
+                elif msg['content']['type'] == 4: #语音
+                    voice = os.path.join(self.temp_pwd,'voice_'+msg['msg_id']+'.mp3')
+                    self.send_file_msg_by_uid(voice, self.person_user_id)
+                elif msg['content']['type'] ==3: #图片
+                    image = os.path.join(self.temp_pwd,'img_'+msg['msg_id']+'.png')
+                    self.send_img_msg_by_uid(image, self.person_user_id)
            
         elif msg['msg_type_id'] == 3 and msg['content']['type'] == 0:  # group text message
             if 'detail' in msg['content']:

@@ -18,6 +18,7 @@ from traceback import format_exc
 from requests.exceptions import ConnectionError, ReadTimeout
 import HTMLParser
 
+
 UNKONWN = 'unkonwn'
 SUCCESS = '200'
 SCANED = '201'
@@ -1152,7 +1153,7 @@ class WXBot:
                     result = True
                     for line in f.readlines():
                         line = line.replace('\n', '')
-                        print '-> ' + name + ': ' + line
+                        print '-> ' + name + ': *** ' + line
                         if self.send_msg_by_uid(line, uid):
                             pass
                         else:
@@ -1459,7 +1460,7 @@ class WXBot:
         url = self.base_uri + '/webwxgetmsgimg?MsgID=%s&skey=%s' % (msgid, self.skey)
         r = self.session.get(url)
         data = r.content
-        fn = 'img_' + msgid + '.jpg'
+        fn = 'img_' + msgid + '.png'
         with open(os.path.join(self.temp_pwd,fn), 'wb') as f:
             f.write(data)
         return fn
